@@ -9,10 +9,25 @@ const nodemailer = require("nodemailer");
 
 const app = express();
 
-// ✅ CORS
-app.use(cors({ origin: "*" }));
 
-app.use(express.json());
+// ✅ 🔥 CORS FIX (IMPORTANT)
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://lead-generation-tool.vercel.app"
+    ],
+    methods: ["GET", "POST", "DELETE"],
+    allowedHeaders: ["Content-Type"],
+  })
+);
+
+// ✅ handle preflight (VERY IMPORTANT)
+app.options("*", cors());
+
+// ✅ JSON FIX
+app.use(express.json({ limit: "1mb" }));
+
 
 // ✅ Logger
 app.use((req, res, next) => {
@@ -20,8 +35,10 @@ app.use((req, res, next) => {
   next();
 });
 
+
 // ⏳ Delay
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 
 // ✅ EMAIL TRANSPORTER
 const transporter = nodemailer.createTransport({
@@ -32,6 +49,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+
 // ✅ VERIFY EMAIL CONFIG
 transporter.verify((error) => {
   if (error) {
@@ -41,10 +59,12 @@ transporter.verify((error) => {
   }
 });
 
+
 // ✅ ROOT
 app.get("/", (req, res) => {
   res.send("API running...");
 });
+
 
 // ✅ HEALTH CHECK
 app.get("/status", (req, res) => {
@@ -68,7 +88,6 @@ app.post("/scrape", async (req, res) => {
   try {
     let leads = await scrape(keyword, source);
 
-    // ✅ SAFETY FIX (important for your previous error)
     if (!Array.isArray(leads)) leads = [];
 
     if (leads.length === 0) {
@@ -93,7 +112,6 @@ app.post("/scrape", async (req, res) => {
           continue;
         }
 
-        // ✅ FIX: handle missing 'source' column gracefully
         const insertData = {
           website: lead.website,
           email: lead.email,
@@ -101,7 +119,6 @@ app.post("/scrape", async (req, res) => {
           keyword: keyword,
         };
 
-        // 👉 only add source if column exists in DB
         if (lead.source) {
           insertData.source = lead.source;
         }
@@ -210,7 +227,7 @@ Interested?
 
           await delay(3000);
 
-        } catch (mailErr) {
+        } catch {
           console.log("❌ Email failed:", lead.email);
         }
       }
@@ -218,7 +235,7 @@ Interested?
 
     res.json({ message: `✅ Sent ${success} emails` });
 
-  } catch (err) {
+  } catch {
     res.status(500).json({ error: "Email process failed" });
   }
 });
@@ -266,13 +283,15 @@ Let me know 🙂
 
     res.json({ message: `🔁 Sent ${success} follow-ups` });
 
-  } catch (err) {
+  } catch {
     res.status(500).json({ error: "Follow-up failed" });
   }
 });
 
 
 // 🚀 START SERVER
-app.listen(5000, () => {
-  console.log("🚀 Server running on http://localhost:5000");
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
