@@ -22,9 +22,6 @@ app.use(
   })
 );
 
-// ✅ handle preflight (VERY IMPORTANT)
-app.options("/*", cors());
-
 // ✅ JSON FIX
 app.use(express.json({ limit: "1mb" }));
 
