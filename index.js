@@ -15,13 +15,14 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "https://lead-generation-tool.vercel.app"
+      "https://frontend-silk-two-63.vercel.app/"
     ],
-    methods: ["GET", "POST", "DELETE"],
-    allowedHeaders: ["Content-Type"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
   })
 );
-
+app.options("*", cors());
 // ✅ JSON FIX
 app.use(express.json({ limit: "1mb" }));
 
