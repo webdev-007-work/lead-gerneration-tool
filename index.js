@@ -10,20 +10,20 @@ const nodemailer = require("nodemailer");
 const app = express();
 
 
-// ✅ 🔥 CORS FIX (IMPORTANT)
+// ✅ 🔥 FINAL CORS 
 app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "https://frontend-silk-two-63.vercel.app/"
+      "https://frontend-silk-two-63.vercel.app" 
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
-app.options("*", cors());
-// ✅ JSON FIX
+
+// ✅ JSON
 app.use(express.json({ limit: "1mb" }));
 
 
